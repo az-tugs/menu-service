@@ -5,14 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// DB
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Repositories
-builder.Services.AddScoped<MenuItemRepository>();
-
-// Swagger / OpenAPI
+builder.Services.AddScoped<MenuItemRepository>();// DI or Dependency Injection
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -23,7 +19,6 @@ builder.Services.AddOpenApiDocument(config =>
     config.Version = "v1";
 });
 
-// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact", policy =>
@@ -48,8 +43,6 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger";
     });
 }
-
-// FIX: correct CORS policy name
 app.UseCors("AllowReact");
 
 
