@@ -1,10 +1,17 @@
+using backend.Data;
+using backend.Endpoints;
+using backend.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<MenuDb>(opt => opt.UseInMemoryDatabase("menuItemList"));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<MenuItemRepository>();// DI or Dependency Injection
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddOpenApiDocument(config =>
 {
     config.DocumentName = "MenuAPI";
@@ -14,30 +21,31 @@ builder.Services.AddOpenApiDocument(config =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReact",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:5173")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-
+    options.AddPolicy("AllowReact", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
+builder.WebHost.UseUrls("http://localhost:5201");
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseOpenApi();
-    app.UseSwaggerUi(config =>
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
     {
-        config.DocumentTitle = "MenuAPI";
-        config.Path = "/swagger";
-        config.DocumentPath = "/swagger/{documentName}/swagger.json";
-        config.DocExpansion = "list";
+        c.DocumentTitle = "MenuAPI";
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "MenuAPI v1");
+        c.RoutePrefix = "swagger";
     });
 }
+app.UseCors("AllowReact");
+
 
 app.MapMenuItemsEndpoints();
+
 app.Run();

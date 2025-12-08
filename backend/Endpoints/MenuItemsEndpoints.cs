@@ -1,70 +1,53 @@
-using Microsoft.EntityFrameworkCore;
+using backend.Repositories;
+using backend.Models;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
-public static class MenuItemsEndpoints
+namespace backend.Endpoints
 {
-    public static void MapMenuItemsEndpoints(this IEndpointRouteBuilder app)
+    public static class MenuItemsEndpoints
     {
-        RouteGroupBuilder menuItems = app.MapGroup("/api/menu-items")
-            .RequireCors("AllowReact");
-
-        menuItems.MapGet("/", GetAllMenuItems);
-        menuItems.MapGet("/available", GetAvailableMenuItems);
-        menuItems.MapGet("/{id}", GetMenuItem);
-        menuItems.MapPost("/", CreateMenuItem);
-        menuItems.MapPut("/{id}", UpdateMenuItem);
-        menuItems.MapDelete("/{id}", DeleteMenuItem);
-
-        static async Task<IResult> GetAllMenuItems(MenuDb db)
+        public static void MapMenuItemsEndpoints(this IEndpointRouteBuilder app)
         {
-            return TypedResults.Ok(await db.MenuItems.ToListAsync());
-        }
-            
-        static async Task<IResult> GetAvailableMenuItems(MenuDb db)
-        {
-            return TypedResults.Ok(await db.MenuItems.Where(t => t.IsAvailable)
-                .ToListAsync());
-        }
+            var menuItems = app.MapGroup("/api/menu-items");
 
-        static async Task<IResult> GetMenuItem(int id, MenuDb db)
-        {
-            return await db.MenuItems.FindAsync(id)
-                is MenuItem menuitem
-                    ? TypedResults.Ok(menuitem)
-                    : TypedResults.NotFound();
-        }
-            
-        static async Task<IResult> CreateMenuItem(MenuItem menuitem, MenuDb db)
-        {
-            db.MenuItems.Add(menuitem);
-            await db.SaveChangesAsync();
+            menuItems.RequireCors("AllowReact");
 
-            return TypedResults.Created($"/{menuitem.Id}", menuitem);
-        }
+            // GET ALL
+            menuItems.MapGet("/", async (MenuItemRepository repo) =>
+                Results.Ok(await repo.GetAllMenuItemsAsync())
+            );
 
-        static async Task<IResult> UpdateMenuItem(int id, MenuItem menuItem, MenuDb db)
-        {
-            var menuitem = await db.MenuItems.FindAsync(id);
-
-            if (menuitem is null) return Results.NotFound();
-
-            menuitem.Name = menuItem.Name;
-            menuitem.IsAvailable = menuItem.IsAvailable;
-
-            await db.SaveChangesAsync();
-
-            return TypedResults.NoContent();
-        }
-
-        static async Task<IResult> DeleteMenuItem(int id, MenuDb db)
-        {
-            if (await db.MenuItems.FindAsync(id) is MenuItem menuitem)
+            // GET BY ID
+            menuItems.MapGet("/{id}", async (int id, MenuItemRepository repo) =>
             {
-                db.MenuItems.Remove(menuitem);
-                await db.SaveChangesAsync();
-                return TypedResults.NoContent();
-            }
+                var menuItem = await repo.GetMenuItemByIdAsync(id);
+                return menuItem is null ? Results.NotFound() : Results.Ok(menuItem);
+            });
 
-            return TypedResults.NotFound();
+            // CREATE
+            menuItems.MapPost("/", async (MenuItem menuItem, MenuItemRepository repo) =>
+            {
+                await repo.CreateMenuItemAsync(menuItem);
+                return Results.Created($"/api/menu-items/{menuItem.Menu_Item_Id}", menuItem);
+            });
+
+            // UPDATE
+            menuItems.MapPut("/{id}", async (int id, MenuItem menuItem, MenuItemRepository repo) =>
+            {
+                // inject the ID from the route into the model
+                menuItem.Menu_Item_Id = id;
+
+                await repo.UpdateMenuItemAsync(menuItem);
+                return Results.NoContent();
+            });
+
+            // DELETE  
+            menuItems.MapDelete("/{id}", async (int id, MenuItemRepository repo) =>
+            {
+                await repo.DeleteMenuItemAsync(id);
+                return Results.NoContent();
+            });
         }
     }
 }
