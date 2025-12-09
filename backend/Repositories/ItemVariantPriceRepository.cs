@@ -37,20 +37,6 @@ namespace backend.Repositories
             );
         }
 
-        public async Task CreateItemVariantPriceAsync(MenuItem menuItem)
-        {
-            var sql = "INSERT INTO MenuItems (MenuName, Description, Category, SubCategory, Img_Url, Is_available) " +
-                      "VALUES (@MenuName, @Description, @Category, @SubCategory, @Img_Url, @Is_available)";
-
-            await _context.Database.ExecuteSqlRawAsync(sql,
-                new SqlParameter("@MenuName", menuItem.MenuName),
-                new SqlParameter("@Description", menuItem.Description),
-                new SqlParameter("@Category", menuItem.Category),
-                new SqlParameter("@SubCategory", menuItem.SubCategory),
-                new SqlParameter("@Img_Url", menuItem.Img_Url),
-                new SqlParameter("@Is_available", menuItem.Is_available)
-            );
-        }
         // Update existing ItemVariant_Price
         public async Task UpdateItemVariantPriceAsync(ItemVariant_Price itemVariantPrice)
         {
