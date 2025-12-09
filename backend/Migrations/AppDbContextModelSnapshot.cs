@@ -16,10 +16,36 @@ namespace backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("backend.Models.ItemVariant_Price", b =>
+                {
+                    b.Property<int>("Item_Variant_Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Item_Variant_Id"));
+
+                    b.Property<int>("Menu_Item_Id")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Variant_Type_Id")
+                        .HasColumnType("int");
+
+                    b.HasKey("Item_Variant_Id");
+
+                    b.HasIndex("Menu_Item_Id");
+
+                    b.HasIndex("Variant_Type_Id");
+
+                    b.ToTable("ItemVariant_Prices");
+                });
 
             modelBuilder.Entity("backend.Models.MenuItem", b =>
                 {
@@ -62,6 +88,48 @@ namespace backend.Migrations
                     b.HasKey("Menu_Item_Id");
 
                     b.ToTable("MenuItems");
+                });
+
+            modelBuilder.Entity("backend.Models.VariantType", b =>
+                {
+                    b.Property<int>("Variant_Type_Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Variant_Type_Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Variant_Type_Id");
+
+                    b.ToTable("VariantTypes");
+                });
+
+            modelBuilder.Entity("backend.Models.ItemVariant_Price", b =>
+                {
+                    b.HasOne("backend.Models.MenuItem", "MenuItem")
+                        .WithMany()
+                        .HasForeignKey("Menu_Item_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Models.VariantType", "VariantType")
+                        .WithMany("ItemVariantPrices")
+                        .HasForeignKey("Variant_Type_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MenuItem");
+
+                    b.Navigation("VariantType");
+                });
+
+            modelBuilder.Entity("backend.Models.VariantType", b =>
+                {
+                    b.Navigation("ItemVariantPrices");
                 });
 #pragma warning restore 612, 618
         }

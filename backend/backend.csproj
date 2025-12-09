@@ -16,8 +16,8 @@
 		
 
 		<!-- For Swagger API Documentation -->
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.0.1" />
-		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.0.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.0" />
 
 		<!-- Optional for SQL Server support -->
 

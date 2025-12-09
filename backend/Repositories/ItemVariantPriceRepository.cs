@@ -14,18 +14,19 @@ namespace backend.Repositories
             _context = context;
         }
 
+        // Get all ItemVariant_Prices
         public async Task<List<ItemVariant_Price>> GetAllItemVariantPricesAsync()
         {
             var sql = "SELECT * FROM ItemVariant_Prices";
             return await _context.ItemVariant_Prices.FromSqlRaw(sql).ToListAsync();
         }
-
+        // Get ItemVariant_Price by ID
         public async Task<ItemVariant_Price?> GetItemVariantPriceByIdAsync(int id)
         {
             var sql = "SELECT * FROM ItemVariant_Prices WHERE Item_Variant_Id = @Id";
             return await _context.ItemVariant_Prices.FromSqlRaw(sql, new SqlParameter("@Id", id)).FirstOrDefaultAsync();
         }
-
+        // Create new ItemVariant_Price
         public async Task CreateItemVariantPriceAsync(ItemVariant_Price itemVariantPrice)
         {
             var sql = "INSERT INTO ItemVariant_Prices (Menu_Item_Id, Variant_Type_Id, Price) VALUES (@MenuItemId, @VariantTypeId, @Price)";
@@ -36,6 +37,21 @@ namespace backend.Repositories
             );
         }
 
+        public async Task CreateItemVariantPriceAsync(MenuItem menuItem)
+        {
+            var sql = "INSERT INTO MenuItems (MenuName, Description, Category, SubCategory, Img_Url, Is_available) " +
+                      "VALUES (@MenuName, @Description, @Category, @SubCategory, @Img_Url, @Is_available)";
+
+            await _context.Database.ExecuteSqlRawAsync(sql,
+                new SqlParameter("@MenuName", menuItem.MenuName),
+                new SqlParameter("@Description", menuItem.Description),
+                new SqlParameter("@Category", menuItem.Category),
+                new SqlParameter("@SubCategory", menuItem.SubCategory),
+                new SqlParameter("@Img_Url", menuItem.Img_Url),
+                new SqlParameter("@Is_available", menuItem.Is_available)
+            );
+        }
+        // Update existing ItemVariant_Price
         public async Task UpdateItemVariantPriceAsync(ItemVariant_Price itemVariantPrice)
         {
             var sql = "UPDATE ItemVariant_Prices SET Menu_Item_Id = @MenuItemId, Variant_Type_Id = @VariantTypeId, Price = @Price WHERE Item_Variant_Id = @Id";
@@ -46,7 +62,7 @@ namespace backend.Repositories
                 new SqlParameter("@Price", itemVariantPrice.Price)
             );
         }
-
+        // Delete ItemVariant_Price by ID
         public async Task DeleteItemVariantPriceAsync(int id)
         {
             var sql = "DELETE FROM ItemVariant_Prices WHERE Item_Variant_Id = @Id";
