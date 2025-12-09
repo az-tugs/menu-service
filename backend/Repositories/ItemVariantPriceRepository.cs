@@ -35,7 +35,7 @@ namespace backend.Repositories
                 new SqlParameter("@Price", itemVariantPrice.Price)
             );
         }
-
+        // CRUD in Variant Type
         public async Task UpdateItemVariantPriceAsync(ItemVariant_Price itemVariantPrice)
         {
             var sql = "UPDATE ItemVariant_Prices SET Menu_Item_Id = @MenuItemId, Variant_Type_Id = @VariantTypeId, Price = @Price WHERE Item_Variant_Id = @Id";
