@@ -9,6 +9,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<MenuItemRepository>();// DI or Dependency Injection
+builder.Services.AddScoped<VariantTypeRepository>();
+builder.Services.AddScoped<ItemVariantPriceRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -47,5 +49,7 @@ app.UseCors("AllowReact");
 
 
 app.MapMenuItemsEndpoints();
+app.MapVariantTypesEndpoints();
+app.MapItemVariantPricesEndpoints();
 
 app.Run();
