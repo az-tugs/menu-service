@@ -35,9 +35,7 @@ namespace backend.Endpoints
             // UPDATE
             menuItems.MapPut("/{id}", async (int id, MenuItem menuItem, MenuItemRepository repo) =>
             {
-                // inject the ID from the route into the model
                 menuItem.Menu_Item_Id = id;
-
                 await repo.UpdateMenuItemAsync(menuItem);
                 return Results.NoContent();
             });
